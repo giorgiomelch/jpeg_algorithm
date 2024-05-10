@@ -1,14 +1,16 @@
-function Output=irle(Input)
-L=length(Input);
-s=1;
-k=1;
-i=1;
-while i<=L
-    while s<=Input(i+1)
-        Output(k)=Input(i);
-        s=s+1;
-        k=k+1;
-    end
-    i=i+2;
+function output=irle(vettore)
+    L=length(vettore);
     s=1;
+    k=1;
+    i=1;
+    output = ones(1, 2112);
+    while i<=L
+        while s<=vettore(i+1)
+            output(k)=vettore(i);
+            s=s+1;
+            k=k+1;
+        end
+        i=i+2;
+        s=1;
+    end
 end

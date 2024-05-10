@@ -3,7 +3,6 @@ clc
 close all
 %% Carico l'immagine
 immRGB = imread("image.jpeg");
-
 %% Modifico l'immagine affinchè abbia numero righe e colonne divisibile per 8
 immRGB = dim_immagine_div_8(immRGB);
 %% Converto in YCbCr
