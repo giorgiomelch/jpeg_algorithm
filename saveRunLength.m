@@ -1,24 +1,19 @@
 function saveRunLength(matrice, type)
-    nomeFile= "codingResult/imageCoded" + type + ".txt";
+    nomeFile = "codingResult/imageCoded_" + type + ".mat";
     if exist(nomeFile, 'file')
         delete(nomeFile);
     end
-    fileID = fopen(nomeFile, 'w');
 
-    [M, ~] = size(matrice);  
+    [M,N] = size(matrice);
+    dati = cell(M, 1);
     for i = 1:M
-        tmp = rle(matrice(i, :));
-        L = length(tmp);
-        for j = 1:L
-            fprintf(fileID, '%d', tmp(j));
-            if j < L
-                fprintf(fileID, ',');
-            end
-        end
-        if i < M
-            fprintf(fileID, '\n');
+        dati{i} = [];
+        for j = 1:64:N % 64 è il passo in quanto della Run Length, ovvero i 64 elementi che rappresentano un blocchetto
+            endIdx = min(j+64-1, N);
+            blocco = matrice(i, j:endIdx);
+            dati{i} = [dati{i}, rle(blocco)];
         end
     end
-    
-    fclose(fileID);
+
+    save(nomeFile, 'dati');
 end

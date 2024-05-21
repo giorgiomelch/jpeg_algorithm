@@ -7,17 +7,6 @@ function output = quantFun(mtrx)
             24	35	55	64	81	104	113	92;
             49	64	78	87	103	121	120	101;
             72	92	95	98	112	100	103	99];
-    fun = @(block_struct) matrixDotDivision(block_struct.data, mtrxQuant);
+    fun = @(block_struct) (block_struct.data ./ mtrxQuant);
     output = blockproc(mtrx, [8 8], fun);
-end
-
-function output = matrixDotDivision(m_a, m_b)
-    [M_a, N_a] = size(m_a);
-    [M_b, N_b] = size(m_b);
-    if [M_a, N_a] == [M_b, N_b]
-        output = m_a ./ m_b;
-    else
-        m_b = m_b(1:M_a, 1:N_a);
-        output = m_a ./ m_b;
-    end
 end

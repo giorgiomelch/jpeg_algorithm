@@ -1,53 +1,86 @@
 %%
 clc
+clear all
 close all
 %% Carico l'immagine
-immRGB = imread("image.jpeg");
+RGB = imread("girasole.jpg");
 
+%% ENCODING
 %% Modifico l'immagine affinchè abbia numero righe e colonne divisibile per 8
-immRGB = dim_immagine_div_8(immRGB);
+RGB = dim_immagine_div_8(RGB);
 %% Converto in YCbCr
-immYCbCr = rgb2ycbcr(immRGB);
+YCbCr = rgb2ycbcr(RGB);
+
 %% Ridico la dimensione della crominanza
 % Per i due canali di crominanza eseguo la media di 4 pixel in un unico pixel
-Y = immYCbCr(:,:,1);
-Cb = immYCbCr(:,:,2);
-Cr = immYCbCr(:,:,3);
+Y = YCbCr(:,:,1);
+Cb = YCbCr(:,:,2);
+Cr = YCbCr(:,:,3);
 % ds sta per downsampling
 dsfun = @(block_struct) ([block_struct.data(1,1) block_struct.data(1,1);
                         block_struct.data(1,1) block_struct.data(1,1)]);
-dsCb = blockproc(Cb,[2 2],dsfun);
-dsCr = blockproc(Cr,[2 2],dsfun);
-%% Shift dei valori di 128
-Y = Y-128;
-dsCb = dsCb-128;
-dsCr = dsCr-128;
+Cb = blockproc(Cb,[2 2],dsfun);
+Cr = blockproc(Cr,[2 2],dsfun);
+
 %% Transformata discreta coseno
 dctfun = @(block_struct) dct2(block_struct.data);
-dctY = blockproc(Y, [8 8], dctfun);
-dctCb = blockproc(dsCb, [8 8], dctfun);
-dctCr = blockproc(dsCr, [8 8], dctfun);
+Y = blockproc(Y, [8 8], dctfun);
+Cb = blockproc(Cb, [8 8], dctfun);
+Cr = blockproc(Cr, [8 8], dctfun);
+
 %% Quantizzazione dividendo elemento per elemento per la matrice definita dallo standard
-quantY = quantFun(dctY);
-quantCb = quantFun(dctCb);
-quantCr = quantFun(dctCr);
+Y = (quantFun(Y));
+Cb = (quantFun(Cb));
+Cr = (quantFun(Cr));
 %% Effettuo un a scansione zig zag per ogni blocco 8x8
 zgzfun = @(block_struct) zigzag(block_struct.data);
-zgzY = blockproc(quantY, [8 8], zgzfun);
-zgzCb = blockproc(quantCb, [8 8], zgzfun);
-zgzCr = blockproc(quantCr, [8 8], zgzfun);
+Y = blockproc(Y, [8 8], zgzfun);
+Cb = blockproc(Cb, [8 8], zgzfun);
+Cr = blockproc(Cr, [8 8], zgzfun);
 
 %% Effettuo la dpct
-dpcmY = dpcm(zgzY);
-dpcmCb = dpcm(zgzCb);
-dpcmCr = dpcm(zgzCr);
+Y = dpcm(Y);
+Cb = dpcm(Cb);
+Cr = dpcm(Cr);
 
-%% Effettuato la codifica Run Length salvando il risultato in un file txt (questo codice non prevede la codifica Huffman)
-saveRunLength(dpcmY, "y");
-saveRunLength(dpcmCb, "Cb");
-saveRunLength(dpcmCr, "Cr");
+%% Effettuo la codifica Run Length salvando il risultato in un file mat (encoding concluso: questo codice non prevede la codifica Huffman)
+saveRunLength(Y, "Y");
+saveRunLength(Cb, "Cb");
+saveRunLength(Cr, "Cr");
+%% DECODING
 
-%% Decoding verso l'immagine originale
+%% Effttuo la decodifica della Run Length
+Y = decodeRunLength("codingResult/imageCoded_Y.mat");
+Cb = decodeRunLength("codingResult/imageCoded_Cb.mat");
+Cr = decodeRunLength("codingResult/imageCoded_Cr.mat");
+%% Effettuo l'inversa della dpct
+Y = idpcm(Y);
+Cb = idpcm(Cb);
+Cr = idpcm(Cr);
+
+%% Effettuo l'inversa della zigzag
+Y = startIzigzag(Y);
+Cb = startIzigzag(Cb);
+Cr = startIzigzag(Cr);
+
+%% Inversa della quantizzazione
+Y = dec_quant(Y);
+Cb = dec_quant(Cb);
+Cr = dec_quant(Cr);
+
+%% Transformata inversa discreta coseno
+idctfun = @(block_struct) idct2(block_struct.data);
+Y = blockproc(Y, [8 8], idctfun);
+Cb = blockproc(Cb, [8 8], idctfun);
+Cr = blockproc(Cr, [8 8], idctfun);
 
 
+%%
+Y = uint8(Y) + 0;
+Cb = uint8(Cb) + 0;
+Cr = uint8(Cr) + 0;
+%% Converto in YCbCr
+RGBFINALE = ycbcr2rgb(cat(3, Y, Cb, Cr));
+figure(1);
+imshowpair(RGB, RGBFINALE, 'montage')
 
