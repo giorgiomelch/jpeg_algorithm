@@ -1,3 +1,7 @@
+% L'algoritmo lavora con blocchi da 64 elementi 8 colonne per 8 righe.
+% Questa funzione restituisce l'immagine originale con repliche delle ultime righe o
+% colonne affinchè la dimensione sia divisibile per 8. Si è preferito
+% aggiungere piuttosto che eliminare per evitare rimozione d'informazione. 
 function immagineModificata = dim_immagine_div_8(immagine)
     [righe, colonne, ~] = size(immagine);
     

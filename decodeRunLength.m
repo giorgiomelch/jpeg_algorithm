@@ -1,3 +1,4 @@
+% Implementzione della decodifica Run-Length
 function output = decodeRunLength(filename)
     Y_cell = load(filename).dati;
     [M, ~] = size(Y_cell);

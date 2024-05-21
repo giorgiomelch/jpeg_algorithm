@@ -1,3 +1,5 @@
+% Data una matrice per ogni blocco 8x8 il valore del primo elemento è
+% sottratto con qullo del blocco precedente, a eccezione del primo blocco.
 function mtrx = dpcm(mtrx)
     [M, N] = size(mtrx);
     sottraendo = mtrx(1, 1);

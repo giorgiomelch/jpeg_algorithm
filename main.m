@@ -10,13 +10,11 @@ RGB = imread("girasole.jpg");
 RGB = dim_immagine_div_8(RGB);
 %% Converto in YCbCr
 YCbCr = rgb2ycbcr(RGB);
-
-%% Ridico la dimensione della crominanza
-% Per i due canali di crominanza eseguo la media di 4 pixel in un unico pixel
 Y = YCbCr(:,:,1);
 Cb = YCbCr(:,:,2);
 Cr = YCbCr(:,:,3);
-% ds sta per downsampling
+%% Ridico la dimensione della crominanza
+% Per i due canali di crominanza eseguo la media di 4 pixel in un unico pixel
 dsfun = @(block_struct) ([block_struct.data(1,1) block_struct.data(1,1);
                         block_struct.data(1,1) block_struct.data(1,1)]);
 Cb = blockproc(Cb,[2 2],dsfun);
@@ -29,9 +27,9 @@ Cb = blockproc(Cb, [8 8], dctfun);
 Cr = blockproc(Cr, [8 8], dctfun);
 
 %% Quantizzazione dividendo elemento per elemento per la matrice definita dallo standard
-Y = (quantFun(Y));
-Cb = (quantFun(Cb));
-Cr = (quantFun(Cr));
+Y = quantFun(Y);
+Cb = quantFun(Cb);
+Cr = quantFun(Cr);
 %% Effettuo un a scansione zig zag per ogni blocco 8x8
 zgzfun = @(block_struct) zigzag(block_struct.data);
 Y = blockproc(Y, [8 8], zgzfun);
@@ -64,9 +62,9 @@ Cb = startIzigzag(Cb);
 Cr = startIzigzag(Cr);
 
 %% Inversa della quantizzazione
-Y = dec_quant(Y);
-Cb = dec_quant(Cb);
-Cr = dec_quant(Cr);
+Y = iquantFun(Y);
+Cb = iquantFun(Cb);
+Cr = iquantFun(Cr);
 
 %% Transformata inversa discreta coseno
 idctfun = @(block_struct) idct2(block_struct.data);
