@@ -1,11 +1,9 @@
 %%
 clc
-clear all
+clear
 close all
 %% Carico l'immagine
 RGB = imread("girasole.jpg");
-
-%% ENCODING
 %% Modifico l'immagine affinchè abbia numero righe e colonne divisibile per 8
 RGB = dim_immagine_div_8(RGB);
 %% Converto in YCbCr
@@ -13,8 +11,9 @@ YCbCr = rgb2ycbcr(RGB);
 Y = YCbCr(:,:,1);
 Cb = YCbCr(:,:,2);
 Cr = YCbCr(:,:,3);
-%% Ridico la dimensione della crominanza
-% Per i due canali di crominanza eseguo la media di 4 pixel in un unico pixel
+
+%% ENCODING
+%% Eseguo downsampling per la crominanza crominanza
 dsfun = @(block_struct) ([block_struct.data(1,1) block_struct.data(1,1);
                         block_struct.data(1,1) block_struct.data(1,1)]);
 Cb = blockproc(Cb,[2 2],dsfun);
@@ -45,8 +44,8 @@ Cr = dpcm(Cr);
 saveRunLength(Y, "Y");
 saveRunLength(Cb, "Cb");
 saveRunLength(Cr, "Cr");
-%% DECODING
 
+%% DECODING
 %% Effttuo la decodifica della Run Length
 Y = decodeRunLength("codingResult/imageCoded_Y.mat");
 Cb = decodeRunLength("codingResult/imageCoded_Cb.mat");
@@ -67,18 +66,14 @@ Cb = iquantFun(Cb);
 Cr = iquantFun(Cr);
 
 %% Transformata inversa discreta coseno
-idctfun = @(block_struct) idct2(block_struct.data);
+idctfun = @(block_struct) uint8(idct2(block_struct.data));
 Y = blockproc(Y, [8 8], idctfun);
 Cb = blockproc(Cb, [8 8], idctfun);
 Cr = blockproc(Cr, [8 8], idctfun);
 
-
-%%
-Y = uint8(Y) + 0;
-Cb = uint8(Cb) + 0;
-Cr = uint8(Cr) + 0;
 %% Converto in YCbCr
 RGBFINALE = ycbcr2rgb(cat(3, Y, Cb, Cr));
 figure(1);
 imshowpair(RGB, RGBFINALE, 'montage')
+title("Originale (sx) e immagine ricostruita dopo codifica (dx).");
 
