@@ -1,2 +1,1 @@
-# jpeg_compression_algorithm
- jpeg compression algorithm
+Questo progetto esegue il processo di compressione e decompressione di immagini jpg, implementando tecniche come il sottocampionamento della crominanza, la Trasformata Coseno Discreta (DCT), la quantizzazione, la scansione a zigzag, la Modulazione Codice a Impulsi Differenziali (DPCM) e la Codifica Run Length (RLE). La codifica si interrompe con la RLE e non include la codifica Huffman. L'immagine è quindi ricostruita attraverso la decompressione che inverte i passaggi per ricostruire originale.
